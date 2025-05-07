@@ -227,6 +227,23 @@ def close_on_exit(proc: subprocess.Popen, f: IO):
     f.close()
     
 
+def explore(max_step=500):
+    import unittest
+    from .u2Driver import U2Driver
+    KeaTestRunner.setOptions(
+        Options(
+            Driver=U2Driver,
+            agent="u2",
+            driverName="d",
+            maxStep=max_step,
+            running_mins=20,
+            packageNames=["it.feio.android.omninotes.alpha"]
+        )
+    )
+    unittest.main(testRunner=KeaTestRunner)
+    
+
+
 class KeaTestRunner(TextTestRunner):
 
     resultclass: JsonResult
