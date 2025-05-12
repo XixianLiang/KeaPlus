@@ -22,10 +22,10 @@ if __name__ == "__main__":
             Driver=U2Driver,
             packageNames=[PACKAGE_NAME],
             # serial="emulator-5554",   # specify the serial
-            maxStep=500,
+            maxStep=10,
             # running_mins=10,  # specify the maximal running time in minutes, default value is 10m
             # throttle=200,   # specify the throttle in milliseconds, default value is 200ms
-            # agent='native'  # 'native' for running the vanilla Fastbot
+            # agent='native'  # 'native' for running the vanilla Fastbot, 'u2' for running Kea2
         )
     )
     unittest.main(testRunner=KeaTestRunner)

@@ -67,13 +67,21 @@ class Options:
     """
     Kea and Fastbot configurations
     """
+    # the driver_name in script (if self.d, then d.) 
     driverName: str
+    # the driver (only U2Driver available now)
     Driver: AbstractDriver
+    # list of package names. Specify the apps under test
     packageNames: List[str]
+    # target device
     serial: str = None
+    # test agent. "native" for stage 1 and "u2" for stage 1~3
     agent: Literal["u2", "native"] = "u2"
+    # max step in exploration (availble in stage 2~3)
     maxStep: Union[str, float] = float("inf")
+    # time(mins) for exploration
     running_mins: int = 10
+    # time(ms) to wait when exploring the app
     throttle: int = 200
 
 
@@ -88,35 +96,43 @@ class PBTTestResult(dict):
     def __getitem__(self, key) -> PropStatistic:
         return super().__getitem__(key)
 
+
+def getFullPropName(testCase: TestCase):
+    return ".".join([
+        testCase.__module__,
+        testCase.__class__.__name__,
+        testCase._testMethodName
+    ])
+
 class JsonResult(TextTestResult):
     res: PBTTestResult
 
     @classmethod
     def setProperties(cls, allProperties: Dict):
         cls.res = dict()
-        for propName in allProperties.keys():
-            cls.res[propName] = PropStatistic()
+        for testCase in allProperties.values():
+            cls.res[getFullPropName(testCase)] = PropStatistic()
 
     def flushResult(self, outfile):
         json_res = dict()
         for propName, propStatitic in self.res.items():
             json_res[propName] = asdict(propStatitic)
         with open(outfile, "w") as fp:
-            json.dump(json_res, fp)
+            json.dump(json_res, fp, indent=4)
 
     def addExcuted(self, test: TestCase):
-        self.res[test._testMethodName].executed += 1
+        self.res[getFullPropName(test)].executed += 1
 
     def addPrecondSatisfied(self, test: TestCase):
-        self.res[test._testMethodName].precond_satisfied += 1
+        self.res[getFullPropName(test)].precond_satisfied += 1
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
-        self.res[test._testMethodName].fail += 1
+        self.res[getFullPropName(test)].fail += 1
 
     def addError(self, test, err):
         super().addError(test, err)
-        self.res[test._testMethodName].error += 1
+        self.res[getFullPropName(test)].error += 1
 
 
 def activateFastbot(options: Options, port=None) -> threading.Thread:
@@ -307,7 +323,7 @@ class KeaTestRunner(TextTestRunner):
                     # filter the properties according to the given p
                     for propName, test in propsSatisfiedPrecond.items():
                         result.addPrecondSatisfied(test)
-                        if getattr(test, "p", 0.5) >= p:
+                        if getattr(test, "p", 1) >= p:
                             propsNameFilteredByP.append(propName)
 
                     if len(propsNameFilteredByP) == 0:

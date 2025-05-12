@@ -1,7 +1,10 @@
 [project]
-name = "unittest-debug"
+name = "Kea2"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "rtree>=1.4.0",
+    "uiautomator2>=3.2.9",
+]

@@ -1,194 +1,410 @@
-## Intro 
+# Introduction 
 
 Kea2 is an easy-to-use Python library for supporting and customizing automated UI testing for mobile apps. The library is currently built on top of [Fastbot](https://github.com/bytedance/Fastbot_Android) and [uiautomator2](https://github.com/openatx/uiautomator2), and targeting [Android](https://en.wikipedia.org/wiki/Android_(operating_system)) apps.
 
-It has these important features:
-- coming with the full capability of [Fastbot](https://github.com/bytedance/Fastbot_Android) for finding *stability problems* (i.e., *crashing bugs*); 
-- customizing specific testing scenarios (自定义测试场景或事件序列[^1], e.g., testing specific app functionalities, executing specific event traces, entering specifc UI pages, reaching specific app states) with the full capability and flexibility powered by *python* language and [uiautomator2](https://github.com/openatx/uiautomator2);
-- supporting auto-assertions (断言机制[^2]) during automated GUI testing, based on the idea of [property-based testing](https://en.wikipedia.org/wiki/Software_testing#Property_testing) inheritted from [Kea](https://github.com/ecnusse/Kea), for finding *logic bugs* (i.e., *non-crashing bugs*)
+### Kea2 has three important features:
+- **Feature 1**(查找稳定性问题): coming with the full capability of [Fastbot](https://github.com/bytedance/Fastbot_Android) for stress testing and finding *stability problems* (i.e., *crashing bugs*); 
+- **Feature 2**(自定义测试场景或事件序列[^1]): customizing testing scenarios when running Fastbot (e.g., testing specific app functionalities, executing specific event traces, entering specifc UI pages, reaching specific app states) with the full capability and flexibility powered by *python* language and [uiautomator2](https://github.com/openatx/uiautomator2);
+- **Feature 3**(支持断言机制[^2]): supporting auto-assertions when running Fastbot, based on the idea of [property-based testing](https://en.wikipedia.org/wiki/Software_testing#Property_testing) inheritted from [Kea](https://github.com/ecnusse/Kea), for finding *logic bugs* (i.e., *non-crashing bugs*)
 
-> In essence, Kea2 is designed to be capable of fusing the (property-based) *scripted tests* (e.g., written in uiautomator2) with automated UI testing tools (e.g., Fastbot), thus combining the strengths of human knowledge on app's business logics (empowered by the scripted tests) and random fuzzing. Many useful features (e.g., mimicing exploratory testing) can be implemented based on such a capability.
+These three features can be combined to customize and improve automated UI testing.
+
+<div align="center">
+    <div style="max-width:80%; max-height:80%">
+    <img src="docs/intro.png" style="border-radius: 14px; width: 80%; height: 80%;"/> 
+    </div>
+</div>
+
+> Kea2 is designed to be capable of fusing the (property-based) *scripteds* (e.g., written in uiautomator2) with automated UI testing tools (e.g., Fastbot), thus combining the strengths of human knowledge on app's business logics (empowered by the scripts) and random fuzzing. Many useful features (e.g., mimicing exploratory testing) can be implemented based on such a capability.
+
+**The ability of the three features in Kea2**
+|  | **Feature 1** | **Feature 2** | **Feature 3** |
+| --- | --- | --- | ---- |
+| **Finding crashes** | :+1: | :+1: | :+1: |
+| **Finding crashes in deep states** |  | :+1: | :+1: |
+| **Finding non-crashing functional bugs** |  |  | :+1: |
  
 Kea2, released as a Python library, currently works with:
 - [unittest](https://docs.python.org/3/library/unittest.html) as the testing framework;
 - [uiautomator2](https://github.com/openatx/uiautomator2) as the UI test driver; 
-- [Fastbot](https://github.com/bytedance/Fastbot_Android) as the backend automated GUI testing tool.
+- [Fastbot](https://github.com/bytedance/Fastbot_Android) as the backend automated UI testing tool.
 
-In the future, Kea2 is planned to additionally support
+In the future, Kea2 will be extended to support
 - [pytest](https://docs.pytest.org/en/stable/)
 - [Appium](https://github.com/appium/appium), [Hypium]() (for HarmonyOS)
 - other automated UI testing tools (not limited to Fastbot)
 
-> Kea2 is inspired by many valuable insights, advices and lessons shared by experienced industrial practitioners. Kudos!
+> Kea2 is inspired by many valuable insights, advices and lessons shared by experienced industrial practitioners from Bytedance (Zhao Zhang, Yuhui Su from the Fastbot team), OPay (Tiesong Liu), WeChat (Haochuan Lu), Huawei, Xiaomi and etc. Kudos!
+
+
+# Deploy Kea2
 
 ## Installation
 
-Running requirements or environment:
+Running requirements/environment:
 - support Windows, MacOS and Linux
 - python 3.8+
 - Android SDK installed
-- VPN disabled
+- **VPN closed** (Features 2 and 3 required)
 
-1. Create a workspace and clone this repository into the workspace.
+1. Clone `Kea2` into your workspace.
 
 ```bash
 git clone git@github.com:ecnusse/Kea2.git
 cd Kea2
 ```
 
-2. Setup python envirnment with uv
+2. Setup the python virtual environment with `uv`.
+
+> [uv](https://github.com/astral-sh/uv) is a extremely fast python package and project manager. We use `uv` to create a python virtual environment for Kea2 to avoid any dependency issues or conflicts with your existing python environment.
+`uv` is similar to `virtualenv` but much more powerful.
+Of course, you can also setup Kea2 in your [global environment](https://github.com/ecnusse/Kea2/tree/dev?tab=readme-ov-file#appendix-install-kea2-in-a-global-environment).
+
 ```bash
 pip install --upgrade pip
 pip install uv
 uv sync
 ```
 
-> [uv](https://docs.astral.sh/uv/) is a python package manager.
+> MacOS users may have trouble with global pip install. In such cases, they can use `brew`.
+```bash
+# For macOS users
+brew install uv
+uv sync
+```
 
-## Quick Start
+3. Activate virtual environment
 
-1. Create and start an Android emulator (e.g., Android 12 -- API version 31).
+- Linux and macOS
+```bash
+source .venv/bin/activate
+```
 
+- Windows cmd
+```cmd
+\.venv\Scripts\activate.bat
+```
+
+- Windows powershell
+```powershell
+\.venv\Scripts\activate.ps1
+```
+
+## Quick Test
+
+Kea2 connects to and runs on Android devices. We recommend you to do a quick test to ensure that Kea2 is compatible with your devices.
+
+1. Connect to an Android device and make sure you can see the connected device by running `adb devices`. 
+
+2. Run `quickstart.py` to test a sample app `omninotes` (released as `omninotes.apk` in Kea2's repository). The script `quickstart.py` will automatically install and test this sample app for a short time.
+
+```python
+python3 quickstart.py
+```
+
+If you can see the app `omninotes` is successfully running and tested, Kea2 works. Otherwise, please help [file a bug report](https://github.com/ecnusse/Kea2/issues) with the error message to us. Thank you!
+
+If you do not have an Android device at hand, you can use an Android emulator to run Kea2. The following commands can help create and start an Android emulator (Android version 12, API level 31) on a x86 machine (of course, you can create emulators by Android Studio):
 ```bash
 sdkmanager "system-images;android-31;google_apis;x86_64"
+
 avdmanager create avd --force --name Android12 --package 'system-images;android-31;google_apis;x86_64' --abi google_apis/x86_64 --sdcard 1024M --device 'Nexus 7'
+
 emulator -avd Android12 -port 5554 &
 ```
 
-or, prepare one real Android device (not two) with `Developer Options` enabled, connect this device to your machine, and make sure you can see the connected device by running `adb devices`.
+> [quickstart.py](https://github.com/XixianLiang/KeaPlus/blob/main/quickstart.py) is a dead simple script which is ready-to-go with Fastbot. You can customize this script for testing your apps.
 
-2. run `quickstart.py` to fuzz a sample app `omninotes`.
-The script will automatically download the sample app `omninotes`'s apk `omninotes.apk` and run.
+## Feature 1(查找稳定性问题): running Fastbot
 
-```python
-uv run quickstart.py
+Test your app with the full capability of [Fastbot](https://github.com/bytedance/Fastbot_Android) for stress testing and finding *stability problems* (i.e., *crashing bugs*); 
+
+
+```bash
+python3 kea_launcher.py driver -s "emulator-5554" -p it.feio.android.omninotes.alpha --agent native --running-minutes 10 --throttle 200
 ```
 
-> [quickstart.py](https://github.com/XixianLiang/KeaPlus/blob/main/quickstart.py) gives a dead simple scripted test which is ready-to-go with Fastbot. You can customize this script test for testing your apps at your needs.
+The usage is similar to the the original [Fastbot](https://github.com/bytedance/Fastbot_Android?tab=readme-ov-file#run-fastbot-with-shell-command)'s shell commands. 
+See more options by `python kea_launcher.py driver -h`
 
-### How to understand and customize the script test `quickstart.py` ? - Step by step guide.
 
-1. Extend the python unittest.TestCase module and write your own script
+## Feature 2(自定义测试场景或事件序列): customizing testing scenarios by scripts
 
-    ```python
-    from kea.keaUtils import precondition, KeaTestRunner, Options
-    from kea.u2Driver import U2Driver
+When running any automated UI testing tools like Fastbot to test your apps, you may find that some specifc UI pages or functionalities are difficult to reach or cover. The reason is that Fastbot lacks knowledge of your apps. Fortunately, this is the strength of script testing. In Feature 2, Kea2 can support writing small scripts to guide Fastbot to explore wherever we want.
 
-    class MyTest(unittest.TestCase):
-        # [Attention] Only the method starts with test will be found by unittest
-        # [Attention] Only the test method decorated with precond will be loaded as a property
-        @precondition(lambda self: ...)
-        def test_func1(self):...
-    ```
+<div align="center">
+    <div>
+    <img src="docs/stage1.png" style="border-radius: 14px; width: 80%; height: 80%;"/> 
+    </div>
+</div>
 
-2. Set the Configurations.
+<div align="center">
+    <img src="docs/stage2.png" style="border-radius: 14px; width: 80%; height: 80%;"/> 
+</div>
 
-    ```python
-    KeaTestRunner.setOptions(
-        Options(
-            # what you written in script
-            # if driver is (self.d), then driverName="d"
-            # if driver is (self.device) then driverName="device"
-            driverName="d",
-            # Use the U2Driver
-            Driver=U2Driver,
-            ...
-        )
+Kea2 can support you to test your app by customizing testing scenarios (e.g., testing specific app functionalities, executing specific event traces, entering specifc UI pages, reaching specific app states) with the full capability and flexibility powered by `python` language and [uiautomator2](https://github.com/openatx/uiautomator2);
+
+In Kea2, a script is composed of two elements:
+-  **Precondition:** When to execute the script.
+- **Interaction scenario:** The interaction logic (specified in the script's test method) to reach where we want.
+
+### Example
+
+Assuming `Privacy` is a hard-to-reach UI page during automated UI testing. Kea2 can easily guide Fastbot to reach this page.
+
+```python
+    @prob(0.5)
+    # precondition: when we are at the page `Home`
+    @precondition(lambda self: 
+        self.d(text="Home").exists
     )
-    ```
+    def test_goToPrivacy(self):
+        """
+        Guide Fastbot to the page `Privacy` by opening `Drawer`, 
+        clicking the option `Setting` and clicking `Privacy`.
+        """
+        self.d(description="Drawer").click()
+        self.d(text="Settings").click()
+        self.d(text="Privacy").click()
+```
 
-3. Use the KeaTestRunner. Save your script and run with `python3 <...>.py`.
-   
-    ```python
-    unittest.main(testRunner=KeaTestRunner)
-    ```
+- By the decorator `@precondition`, we specify the precondition --- when we are at the `Home` page. 
+In this case, the `Home` page is the entry page of the `Privacy` page and the `Home` page can be easily reached by Fastbot. Thus, the script will be activated when we are at `Home` page by checking whether a unique widget `Home` exists. 
+- In script's test method `test_goToPrivacy`, we specify the interaction logic (i.e., opening `Drawer`, clicking the option `Setting` and clicking `Privacy`) to guide Fastbot to reach the `Privacy` page.
+- By the decorator `@prob`, we specify the probability (50% in this example) to do the guidance when we are at the `Home` page. As a result, Kea2 still allows Fastbot to explore other pages.
+
+You can find the full example in script `quickstart2.py` and run it by executing:
 
 
-### `mytest.py` Full example
+```bash
+# Launch Kea2 and load one single script quickstart2.py.
+python3 kea_launcher.py driver -s "emulator-5554" -p it.feio.android.omninotes.alpha --agent u2 --running-minutes 10 --throttle 200 --driver-name d unittest quickstart2.py
+```
+
+or simply run:
+
+```python
+python3 quickstart2.py
+```
+
+
+
+## Feature 3(支持断言机制): Supporting auto-assertions by scripts.
+
+Kea2 supports auto-assertions when running Fastbot for finding *logic bugs* (i.e., *non-crashing bugs*). To achieve this, you can add assertions in the scripts. When an assertion fails during automated UI testing, we find a likely functional bug. This idea is inspired by  [property-based testing](https://en.wikipedia.org/wiki/Software_testing#Property_testing) inheritted from [Kea](https://github.com/ecnusse/Kea).
+
+<div align="center">
+    <img src="docs/stage3.png" style="border-radius: 14px; width: 80%; height: 80%;"/> 
+</div>
+
+In Feature 3, a script is composed of three elements:
+
+- **Precondition:** When to execute the script.
+- **Interaction scenario:** The interaction logic (specified in the script's test method).
+- **Assertion:** The expected app behaviour.
+
+### Example
+
+In a social media app, message sending is a common feature. On the message sending page, the `send` button should always appears when the input box is not empty (i.e., has some message).
+
+<div align="center" >
+    <div >
+        <img src="docs/socialAppBug.png" style="border-radius: 14px; width:60%; height:70%;"/>
+    </div>
+    <p>The expected behavior (the upper figure) and the buggy behavior (the lower figure).
+<p/>
+</div>
+
+For the preceding always-holding property, we can write the following script to validate the functional correctness: when there is an `input_box` widget on the message sending page, we can type any non-empty string text into the input box and assert `send_button` should always exists.
+
+
+```python
+    @precondition(
+        lambda self: self.d(description="input_box").exists
+    )
+    def test_input_box(self):
+        from hypothesis.strategies import text, ascii_letters
+        random_str = text(alphabet=ascii_letters).example()
+        self.d(description="input_box").set_text(random_str)
+        assert self.d(description="send_button").exist
+
+        # we can even do more assertions, e.g.,
+        #       the input string should exist on the message sending page
+        assert self.d(text=random_str).exist
+```
+>  We use [hypothesis](https://github.com/HypothesisWorks/hypothesis), a property-based testing library for Python, to generate random texts according to the given rules.
+
+# Documentation
+
+## Write scripts
+
+Kea2 uses [Unittest](https://github.com/python/cpython/tree/main/Lib/unittest) to manage scripts. All the Kea2's scripts can be found in unittest's rules (i.e., the test methods should start with `test_`, the test classes should extend `unittest.TestCase`).
+
+Kea2 uses [Uiautomator2](https://github.com/openatx/uiautomator2) to manipulate android devices. Refer to [Uiautomator2's docs](https://github.com/openatx/uiautomator2?tab=readme-ov-file#quick-start) for more details.
+
+Basically, you can write Kea2's scripts by following two steps:
+
+1. Create a test class which extends `unittest.TestCase`.
 
 ```python
 import unittest
-import uiautomator2 as u2
 
-from kea.keaUtils import precondition, prob, KeaTestRunner, Options
-from kea.u2Driver import U2Driver
+class MyFirstTest(unittest.TestCase):
+    ...
+```
+
+2. Write your own script by defining test methods
+
+By default, only the test method starts with `test_` will be found by unittest. You can decorate the function with `@precondition`. The decorator `@precondition` takes a function which returns boolean as an arugment. When the function returns `True`, the precondition is satisified and the script will be activated, and Kea2 will run the script based on certain probability defined by the decorator `@prob`.
+
+Note that if a test method is not decorated with `@precondition`.
+This test method will never be activated during automated UI testing, and will be treated as a normal `unittset` test method.
+Thus, you need to explicitly specify `@precondition(lambda self: True)` when the test method should be always executed. When a test method is not decorated with `@prob`, the default probability is 1 (always execute when precondition satisfied).
+
+```python
+import unittest
+from kea2 import precondition
+
+class MyFirstTest(unittest.TestCase):
+
+    @prob(0.7)
+    @precondition(lambda self: ...)
+    def test_func1(self):
+        ...
+```
+
+You can read [Kea - Write your fisrt property](https://kea-docs.readthedocs.io/en/latest/part-keaUserManuel/first_property.html) for more details.
 
 
-class Test1(unittest.TestCase):
+## Launch Kea2
 
-    def setUp(self):
-        self.d = u2.connect()
+We offer two ways to launch Kea2.
 
-    @prob(0.7) # The propbability to exec this proprety when precond statisfied is 0.7
-    @precondition(lambda self: self.d(text="Omni Notes Alpha").exists and self.d(text="Settings").exists)
-    def test_goToPrivacy(self):
-        """
-        The ability to jump out of the UI tarpits
+### 1. Launch by shell commands
 
-        precond:
-            The drawer was opened
-        action:
-            go to settings -> privacy
-        """
-        self.d(text="Settings").click()
-        self.d(text="Privacy").click()
+Kea2 is compatible with `unittest` framework. You can manage your test cases in unittest style. You can launch Kea2 with `kea_launcher.py` with two sub-commands `driver` (for Kea2 options) and `unittest` (for unittest options).
 
-    @precondition(lambda self: self.d(resourceId = "it.feio.android.omninotes.alpha:id/search_src_text").exists)
-    def test_rotation(self):
-        """
-        The ability to make assertion to find functional bug
+The shell command:
+```
+python3 kea_launcher.py driver <Kea2 cmds> unittest <unittest cmds> 
+```
 
-        precond:
-            The search input box is opened
-        action:
-            rotate the device (set it to landscape, then back to natural)
-        assertion:
-            The search input box is still being opened
-        """
-        self.d.set_orientation("l")
-        self.d.set_orientation("n")
-        assert self.d(resourceId="it.feio.android.omninotes.alpha:id/search_src_text").exists()
+Sample shell commands:
 
+```bash
+# Launch Kea2 and load one single script quickstart.py.
+python3 kea_launcher.py driver -s "emulator-5554" -p it.feio.android.omninotes.alpha --agent u2 --running-minutes 10 --throttle 200 --driver-name d unittest quickstart.py
+
+# Launch Kea2 and load multiple scripts from the directory mytests/omni_notes
+python3 kea_launcher.py driver -s "emulator-5554" -p it.feio.android.omninotes.alpha --agent u2 --running-minutes 10 --throttle 200 --driver-name d unittest discover -s mytests/omni_notes
+```
+
+| arg | meaning |
+| --- | --- |
+| -s | The serial of your device, which can be found by `adb devices` |
+| -p | The tested app's package name (e.g., com.example.app) | 
+| --agent |  {native, u2}. By default, `u2` is used and supports all the three important features of Kea2. If you hope to run the orignal Fastbot, please use `native`.|
+| --running-minutes | The time (m) to run Kea2 | 
+| --max-step | The maxium number of monkey events to send (only available in `--agent u2`) | 
+| --throttle | The delay time (ms) between two monkey events |
+| --driver-name | The name of driver used in the script. If `--driver-name d` is specified, you should use `d` to interact with a device, e..g, `self.d(..).click()`. |
+| unittest | Specify to load which scripts. This  sub-command `unittest` is fully compatible with unittest. See `python3 -m unittest -h` for more options of unittest. This option is only available in `--agent u2`.
+
+
+### 2. Launch by `unittest.main`
+
+Like unittest, we can launch Kea2 through the method `unittest.main`.
+
+Here is an example (named as `mytest.py`). You can see that the options are directly defined in the script.
+
+```python
+import unittest
+
+from kea2 import KeaTestRunner, Options
+from kea2.u2Driver import U2Driver
+
+class MyTest(unittest.TestCase):
+    ...
+    # <your test methods here>
 
 if __name__ == "__main__":
     KeaTestRunner.setOptions(
         Options(
             driverName="d",
-            maxStep=500,
             Driver=U2Driver,
-            packageNames=["it.feio.android.omninotes.alpha"]
+            packageNames=[PACKAGE_NAME],
+            # serial="emulator-5554",   # specify the serial
+            maxStep=100,
+            # running_mins=10,  # specify the maximal running time in minutes, default value is 10m
+            # throttle=200,   # specify the throttle in milliseconds, default value is 200ms
+            # agent='native'  # 'native' for running the vanilla Fastbot
         )
     )
+    # Declare the KeaTestRunner
     unittest.main(testRunner=KeaTestRunner)
 ```
 
-### Run mutiple properties with unittest.
-
-Kea is compatible with `unittest` framework. You can manage your test cases in unittest style.
-
-To do so, launch Kea2 with `kea_launcher.py`. And set the args in `unittest` sub-commands.
-
-You will have the following two sub-commands.
-
-- **driver** : Settings of kea options.
-- **unittest** : Settings of unittest.
-
-Launch kea with 
-```
-python3 kea_launcher.py driver <fastbot cmds> unittest <unittest cmds> 
+We can directly run the script `mytest.py` to launch Kea2, e.g.,
+```python
+python3 mytest.py
 ```
 
-Sample commands:
+Here's all the available options in `Options`.
+
+```python
+# the driver_name in script (if self.d, then d.) 
+driverName: str
+# the driver (only U2Driver available now)
+Driver: U2Driver
+# list of package names. Specify the apps under test
+packageNames: List[str]
+# target device
+serial: str = None
+# test agent. "u2" is the default agent
+agent: "u2" | "native" = "u2"
+# max step in exploration (availble in stage 2~3)
+maxStep: int # default "inf"
+# time(mins) for exploration
+running_mins: int = 10
+# time(ms) to wait when exploring the app
+throttle: int = 200
+```
+
+
+## Examining the running statistics of scripts .
+
+If you want to examine whether your scripts have been executed or how many times they have been executed during testing. Open the file `result.json` after the testing is finished.
+
+Here's an example.
+
+```json
+{
+    "test_goToPrivacy": {
+        "precond_satisfied": 8,
+        "executed": 2,
+        "fail": 0,
+        "error": 1
+    },
+    ...
+}
+```
+
+**How to read `result.json`**
+
+Field | Description | Meaning
+--- | --- | --- |
+precond_satisfied | During exploration, how many times has the test method's precondition been satisfied? | Does we reach the state during exploration? 
+executed | During UI testing, how many times the test method has been executed? | Has the test method ever been executed?
+fail | How many times did the test method fail the assertions during UI testing? | When failed, the test method found a likely functional bug. 
+error | How many times does the test method abort during UI tsting due to some unexpected errors (e.g. some UI widgets used in the test method cannot be found) | When some error happens, the script needs to be updated/fixed because the script leads to some unexpected errors.
+
+### Appendix: Install Kea2 in global environment
 
 ```bash
-# Launch fastbot with command followed by driver (Same in `options`). Load the properties (testCases) from directory mytests/omni_notes
-python3 kea_launcher.py driver -s "emulator-5554" -p it.feio.android.omninotes.alpha --agent u2 --running-minutes 10 --throttle 200 --driver-name d unittest discover -s mytests/omni_notes
-
-# Launch fastbot and load properties from quickstart2.py.
-python3 kea_launcher.py driver <...> unittest quickstart2.py
+# In the working directory of Kea2
+python3 -m pip install --upgrade pip
+python3 -m pip install .
 ```
-
-> Hint: All commands in unittest is compatible in kea_launcher's sub-commands. See `python3 -m unittest -h` for details.
 
 ## Contributors/Maintainers
 
