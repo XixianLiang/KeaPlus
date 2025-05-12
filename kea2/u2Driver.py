@@ -227,7 +227,7 @@ class U2StaticChecker(AbstractStaticChecker):
 
     def setHierarchy(self, hierarchy: str):
         self.d.xml_raw = hierarchy
-        with open("tmp.xml", "w") as fp:
+        with open("tmp.xml", "w", encoding='utf-8') as fp:
             fp.write(hierarchy)
             fp.flush()
         self.d.xml = ElementTree.parse("tmp.xml")
