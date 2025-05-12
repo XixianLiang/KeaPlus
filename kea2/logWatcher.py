@@ -1,9 +1,9 @@
+from collections import deque
 import re
 import os
 import threading
 import time
 import typing
-
 
 PATTERN_EXCEPTION = re.compile(r"\[Fastbot\].+Internal\serror\n([\s\S]*)")
 PATTERN_STATISTIC = re.compile(r".+Monkey\sis\sover!\n([\s\S]+)")
@@ -26,11 +26,16 @@ class LogWatcher:
             "Monkey is over!",
             "Activity of Coverage",
         }
+        
+        self.covs = deque()
 
         with open(self.log_path, "r", encoding="utf-8") as fp:
             while True:
                 self.read_log(fp)
                 time.sleep(poll_interval)
+                with open("covs_res.txt", "w") as f:
+                    for line in self.covs:
+                        f.write(line+"\n")
         
     def read_log(self, fp: typing.IO):
         capture = False
@@ -49,15 +54,6 @@ class LogWatcher:
             self.parse_log("".join(self.buffer_lines))
             self.buffer_lines.clear()
 
-        # time.sleep(poll_interval)
-        # fp.seek(self.last_pos)
-        # new_data = fp.read()
-        # self.last_pos = fp.tell()
-
-        # if new_data:
-        #     self.buffer += new_data
-        # self.parse_log()
-
     def parse_log(self, buffer):
         exception_match = PATTERN_EXCEPTION.search(buffer)
         if exception_match:
@@ -72,6 +68,7 @@ class LogWatcher:
         if coverage_match:
             coverage_body = coverage_match.group(1).strip()
             if coverage_body:
+                self.covs.append(coverage_body)
                 print(
                     "[INFO] Cov info:\n" + 
                     coverage_body
@@ -97,6 +94,9 @@ class LogWatcher:
         time.sleep(0.2) 
         with open("fastbot.log", "r") as fp:
             self.read_log(fp)
+        with open("covs_res.txt", "w") as fp:
+                    for line in self.covs:
+                        fp.write(line)
 
 
 if __name__ == "__main__":
