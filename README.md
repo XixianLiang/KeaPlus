@@ -7,7 +7,7 @@ Kea2 is an easy-to-use Python library for supporting, customizing and improving 
 - **Feature 2**(自定义测试场景或事件序列[^1]): customizing testing scenarios when running Fastbot (e.g., testing specific app functionalities, executing specific event traces, entering specifc UI pages, reaching specific app states) with the full capability and flexibility powered by *python* language and [uiautomator2](https://github.com/openatx/uiautomator2);
 - **Feature 3**(支持断言机制[^2]): supporting auto-assertions when running Fastbot, based on the idea of [property-based testing](https://en.wikipedia.org/wiki/Software_testing#Property_testing) inheritted from [Kea](https://github.com/ecnusse/Kea), for finding *logic bugs* (i.e., *non-crashing bugs*)
 
-We provide a detailed introduction to the application scenarios of features 2 and 3 using WeChat as an example. Please refer to [Scenario_Examples](docs/Scenario_Examples_zh.md).
+>We provide a detailed introduction to the application scenarios of features 2 and 3 using WeChat as an example. Please refer to [Scenario_Examples](docs/Scenario_Examples_zh.md).
 
 These three features can be combined to customize and improve automated UI testing.
 
@@ -196,6 +196,45 @@ For the preceding always-holding property, we can write the following script to 
 >  We use [hypothesis](https://github.com/HypothesisWorks/hypothesis), a property-based testing library for Python, to generate random texts according to the given rules.
 
 # Documentation
+
+## Configuration File
+
+After executing `Kea2 init`, some configuration files will be generated in the `configs` directory. 
+These configuration files belong to `Fastbot`, and their specific introductions are provided in [Introduction to configuration files](https://github.com/bytedance/Fastbot_Android/blob/main/handbook-cn.md#%E4%B8%93%E5%AE%B6%E7%B3%BB%E7%BB%9F).
+
+## Widget Block
+
+We support blacklisting of widgets so that you can guide Fastbot to block certain widgets 
+during the testing process. 
+This feature is specifically divided into Global Block List (always effective) 
+and Conditional Block List (only effective when one or several preconditions are met).
+The list of blocked widgets is specifically written in `configs/widget.block.py`in the root directory, and its usage is as follows.
+
+### Global Block List
+You can write the following function in the script, and the return value of the function 
+is the widgets you want to block, and the blocking will always take effect. 
+The widgets here support specifying with `text`, `description`, or `xpath`.
+```python
+    def global_block_widgets(d: "Device"):
+    """
+    global block widgets.
+    return the widgets you want to block globally
+    only available in mode `u2 agent`
+    """
+    return [d(text="widgets to block"), d.xpath(".//node[@text='widget to block']"),
+            d(description="widgets to block")]
+```
+### Conditional Block List
+If you add the `@precondition` annotation before the function, you can specify that blocking 
+only takes effect under certain specific conditions.
+```python
+    # conditional block list
+@precondition(lambda d: d(text="In the home page").exists)
+def block_sth(d: "Device"):
+    # Important: function shold starts with "block"
+    return [d(text="widgets to block"), d.xpath(".//node[@text='widget to block']"),
+            d(description="widgets to block")]
+```
 
 ## Write scripts
 
